@@ -7,9 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/alexPavlikov/REST-API_Clean_Architecture/internal/book"
+	"github.com/alexPavlikov/REST-API_Clean_Architecture/internal/author"
 	"github.com/alexPavlikov/REST-API_Clean_Architecture/internal/config"
-	"github.com/alexPavlikov/REST-API_Clean_Architecture/internal/user---"
 	"github.com/alexPavlikov/REST-API_Clean_Architecture/pkg/client/postgresql"
 	"github.com/alexPavlikov/REST-API_Clean_Architecture/pkg/logging"
 	"github.com/julienschmidt/httprouter"
@@ -22,25 +21,20 @@ func main() {
 
 	cfg := config.GetConfig()
 
-	postgreSQLClient, err := postgresql.NewClient(context.TODO(), cfg.Storage)
+	clientPostgreSQL, err := postgresql.NewClient(context.TODO(), cfg.Storage)
 	if err != nil {
 		logger.Fatalf("%v", err)
 	}
 
-	repBook := book.NewRepository(postgreSQLClient, logger)
+	logger.Info("Register authors handler")
+	authorRepos := author.NewRepository(clientPostgreSQL, logger)
+	authorService := author.NewService(authorRepos, logger)
+	authorsHandler := author.NewHandler(logger, authorService)
+	authorsHandler.Register(router)
 
-	books, err := repBook.FindAll(context.TODO())
-	if err != nil {
-		logger.Fatalf("%v", err)
-	}
-
-	for _, b := range books {
-		logger.Infof("%v", b)
-	}
-
-	logger.Info("Register user handler")
-	handler := user.NewHandler(logger)
-	handler.Register(router)
+	// logger.Info("Register user handler")
+	// userHandler := user.NewHandler(logger)
+	// userHandler.Register(router)
 
 	start(router, cfg)
 }
