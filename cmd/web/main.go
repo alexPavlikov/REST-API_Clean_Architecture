@@ -8,7 +8,10 @@ import (
 	"time"
 
 	"github.com/alexPavlikov/REST-API_Clean_Architecture/internal/author"
+	"github.com/alexPavlikov/REST-API_Clean_Architecture/internal/book"
 	"github.com/alexPavlikov/REST-API_Clean_Architecture/internal/config"
+	"github.com/alexPavlikov/REST-API_Clean_Architecture/internal/user"
+	"github.com/alexPavlikov/REST-API_Clean_Architecture/internal/worker"
 	"github.com/alexPavlikov/REST-API_Clean_Architecture/pkg/client/postgresql"
 	"github.com/alexPavlikov/REST-API_Clean_Architecture/pkg/logging"
 	"github.com/julienschmidt/httprouter"
@@ -32,9 +35,23 @@ func main() {
 	authorsHandler := author.NewHandler(logger, authorService)
 	authorsHandler.Register(router)
 
-	// logger.Info("Register user handler")
-	// userHandler := user.NewHandler(logger)
-	// userHandler.Register(router)
+	logger.Info("Register users handler")
+	userRepos := user.NewRepository(clientPostgreSQL, logger)
+	userService := user.NewService(logger, userRepos)
+	userHanlder := user.NewHandler(logger, userService)
+	userHanlder.Register(router)
+
+	logger.Info("Register workers handler")
+	workerRepos := worker.NewRepository(clientPostgreSQL, logger)
+	workerService := worker.NewService(logger, workerRepos)
+	workerHandler := worker.NewHandler(logger, workerService)
+	workerHandler.Register(router)
+
+	logger.Info("Register book handler")
+	bookRepos := book.NewRepository(clientPostgreSQL, logger)
+	bookService := book.NewService(bookRepos, logger)
+	bookHandler := book.NewHandler(bookService, logger)
+	bookHandler.Register(router)
 
 	start(router, cfg)
 }

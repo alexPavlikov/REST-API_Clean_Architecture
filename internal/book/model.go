@@ -7,3 +7,9 @@ type Book struct {
 	Name   string          `json:"name"`
 	Author []author.Author `json:"author"`
 }
+
+type Author struct {
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Books []Book `json:"books"`
+}

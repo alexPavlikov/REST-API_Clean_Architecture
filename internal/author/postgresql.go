@@ -68,6 +68,7 @@ func (r *repository) FindAll(ctx context.Context) (authors []Author, err error) 
 		if err != nil {
 			return nil, err
 		}
+
 		authors = append(authors, a)
 	}
 	err = rows.Err()
@@ -81,9 +82,12 @@ func (r *repository) FindAll(ctx context.Context) (authors []Author, err error) 
 // FindOne implements author.Repository
 func (r *repository) FindOne(ctx context.Context, id string) (a Author, err error) {
 	query := `
-		SELECT id, name 
-			FROM public.author
-		WHERE id = $1
+		SELECT 
+			id, name 
+		FROM 
+			public.author
+		WHERE 
+			id = $1
 	`
 
 	r.logger.Tracef("SQL Query: %s", formatQuery(query))
